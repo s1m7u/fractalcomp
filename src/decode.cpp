@@ -9,7 +9,8 @@ void decode() {
         for (int j = 0; j < NUM_TILES; j++) {
             for (int k = 0; k < TILE_SIZE; k++) {
                 for (int l = 0; l < TILE_SIZE; l++) {
-                    buffers[0][i][j].vals[k][l] = rand() >> 24;
+                    /* buffers[0][i][j].vals[k][l] = rand() >> 24; */
+                    buffers[0][i][j].vals[k][l] = 120;
                     /* buffers[0][i][j].vals[k][l] = ((rand() % 256) + 256) % 256; */
                 }
             }

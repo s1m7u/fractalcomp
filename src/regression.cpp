@@ -3,6 +3,17 @@
 #include <stdlib.h>
 
 tf_data regression(tile& domain, tile& range, int orient) {
+    if(domain.sum_sq == 0) {
+        tf_data ret = {
+            .shrink_ratio = 2,
+            .d_block = {0, 0},
+            .orient = 0,
+            .contrast = 0,
+            .brightness = 0,
+            .residual = 100000
+        };
+        return ret;
+    }
     float contrast = 0;
 
     for(int i = 0; i < TILE_SIZE; i++) {

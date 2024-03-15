@@ -15,11 +15,12 @@
 int main() {
     srand(SEED);
 
-    import_image("test/bird.png");
+    /* import_image("test/bird.png"); */
+    import_image("test/hs.png");
+    /* import_image("test/hybrid.png"); */
+    /* import_image("test/birdinhouse.png"); */
 
     init_image();
-
-    save_image("original.png", range_blocks);
 
     printf("INITIALISATION FINISHED\n");
 

@@ -10,6 +10,7 @@ void import_image(const char* s) {
     /*         image[i][j] = sqrt((IMAGE_SIZE / 2 - i) * (IMAGE_SIZE / 2 - i) + (IMAGE_SIZE / 2 - j) * (IMAGE_SIZE / 2 - j)); */
     /*     } */
     /* } */
+    /* return; */
 
     FILE* fp = fopen(s, "rb");
 

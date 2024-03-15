@@ -1,10 +1,10 @@
 #C
 CC = g++
-# CC = clang
+# CC = clang++
 CFLAGS = -I
 # CFLAGS += -Wall -Wextra -pedantic -Ofast -Wshadow -Wformat=2 -Wfloat-equal -Wconversion -Wlogical-op -Wshift-overflow=2 -Wduplicated-cond -Wcast-qual -Wcast-align -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -D_FORTIFY_SOURCE=2 -fsanitize=address -fsanitize=undefined -fno-sanitize-recover -fstack-protector -march=native -ffast-math
 # CFLAGS += -Werror -g -fsanitize=address,leak,undefined
-CFLAGS += -Wall -Wextra -pedantic -Ofast -march=native -ffast-math
+CFLAGS += -Wall -Wextra -pedantic -O3 -march=native
 
 .PHONY: clean
 
