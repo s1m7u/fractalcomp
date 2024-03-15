@@ -49,6 +49,9 @@ void decode() {
 
                         float temp = buffers[iter%2][d_block[0]][d_block[1]].vals[dy][dx];
                         temp = contrast*temp + brightness;
+                        /* if(temp < 0 || temp > 255) { */
+                        /*     printf("bro?? %f %f %d\n", contrast, brightness, temp); */
+                        /* } */
                         buffers[(iter+1)%2][y][x].vals[i][j] = (int) temp;
                     }
                 }

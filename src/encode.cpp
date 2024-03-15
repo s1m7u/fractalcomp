@@ -3,7 +3,6 @@
 #include <stdio.h>
 
 void encode() {
-    print_image("huh.txt", range_blocks);
     // for each range block:
     for (int i = 0; i < NUM_R_BLOCKS; i++) {
         for (int j = 0; j < NUM_R_BLOCKS; j++) {
@@ -29,10 +28,10 @@ void encode() {
 
                         /* printf("%f %f\n", range_blocks[i][j].mean, domain_blocks[k][l].mean); */
                         /* printf("%f %f\n", temp.contrast, temp.brightness); */
-                        if(temp.brightness < -120 
-                                || temp.brightness > 120
-                                || temp.contrast < -8
-                                || temp.contrast > 8) {
+                        if(temp.brightness < 0 
+                                || temp.brightness > 255
+                                || temp.contrast < 0
+                                || temp.contrast > 1) {
                             continue;
                         }
                         if(temp.residual < minimum.residual) {

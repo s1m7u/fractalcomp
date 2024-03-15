@@ -26,7 +26,7 @@ $(ODIR)/%.o: $(IDIR)/%.cpp $(DEPS)
 		@mkdir -p $(ODIR)
 		$(CC) -c -o $@ $< $(CFLAGS) $(LIBS)
 
-base: $(OBJ)
+base: $(OBJ) 
 		@mkdir -p $(BDIR)
 		$(CC) -o $(BDIR)/$@ $^ $(CFLAGS) $(LIBS)
 
