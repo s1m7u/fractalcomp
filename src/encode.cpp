@@ -30,8 +30,8 @@ void encode() {
                         /* printf("%f %f\n", temp.contrast, temp.brightness); */
                         if(temp.brightness < 0 
                                 || temp.brightness > 255
-                                || temp.contrast < 0
-                                || temp.contrast > 1) {
+                                || temp.brightness + 255*temp.contrast < 0
+                                || temp.brightness + 255*temp.contrast > 255) {
                             continue;
                         }
                         if(temp.residual < minimum.residual) {
