@@ -33,7 +33,7 @@ static void image_stats_calc(image* img) {
     for(unsigned int y = 1; y < img->height; y++) {
         for(unsigned int x = 1; x < img->width; x++) {
             img->pfxSum[y*img->width+x] = img->pfxSum[(y-1)*img->width+x]
-                + img->pfxSum[y*img->width + (x-1)]
+                - img->pfxSum[y*img->width + (x-1)]
                 - img->pfxSum[(y-1)*img->width + (x-1)]
                 + yx_to_val(y,x,img);
         }
@@ -50,7 +50,7 @@ static void image_stats_calc(image* img) {
     for(unsigned int y = 1; y < img->height; y++) {
         for(unsigned int x = 1; x < img->width; x++) {
             img->pfxSum[y*img->width+x] = img->pfxSum[(y-1)*img->width+x]
-                + img->pfxSum[y*img->width + (x-1)]
+                - img->pfxSum[y*img->width + (x-1)]
                 - img->pfxSum[(y-1)*img->width + (x-1)]
                 + yx_to_val(y,x,img)*yx_to_val(y,x,img);
         }
