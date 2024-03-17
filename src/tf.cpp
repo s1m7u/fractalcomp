@@ -15,8 +15,8 @@ void tf_collection_create(tf_collection* tfc) {
 }
 
 float regression(block* domain, block* range, int orient, tf_data& tf) {
-    float ds = blockSum(domain);
-    float dsq = blockSumOfSq(domain);
+    float ds = (float)blockSum(domain);
+    float dsq = (float)blockSumOfSq(domain);
 
     float denom = domain->size * domain->size * dsq - ds * ds;
 
@@ -31,14 +31,15 @@ float regression(block* domain, block* range, int orient, tf_data& tf) {
             unsigned int y = i, x = j;
             calc_pos(&y, &x, orient,domain->size);
 
-            xy += yx_to_val(y,x,domain) + yx_to_val(i,j,range);
+            xy += yx_to_val(y,x,domain) * yx_to_val(i,j,range);
         }
     }
 
-    float rs = blockSum(range);
+    float rs = (float)blockSum(range);
 
-    tf.contrast = (domain->size * domain->size * xy - ds * rs)/denom;
-    tf.brightness = (rs * dsq - ds * xy)/denom;
+    tf.contrast = ((float)(domain->size * domain->size * xy) - ds * rs)/denom;
+    tf.brightness = (float)(rs * dsq - ds * xy)/denom;
+    /* printf("%f %f\n", tf.contrast, tf.brightness); */
     tf.d_block[0] = domain->y;
     tf.d_block[1] = domain->x;
     tf.r_block[0] = range->y;
@@ -61,4 +62,25 @@ float regression(block* domain, block* range, int orient, tf_data& tf) {
     }
 
     return residual;
+}
+
+void print_encoding(tf_collection* tfc) {
+    FILE *encoding_file = fopen("encoding.txt", "w");
+    for(tf_data t : tfc->tfs) {
+        fprintf(
+                encoding_file,
+                "(%2d, %2d) -> (%2d %2d) "
+                "s:%4d o:%2d c:%+2.2f b:%+2.2f\n", 
+                t.d_block[0],
+                t.d_block[1],
+                t.r_block[0],
+                t.r_block[1],
+                t.size,
+                t.orient,
+                t.contrast,
+                t.brightness
+               );
+    }        
+    fclose(encoding_file);
+    printf("Success: encoding.txt created.\n");
 }

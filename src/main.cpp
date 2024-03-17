@@ -20,7 +20,10 @@ int main() {
 
     debug("READING IMAGE\n");
 
-    image* range_blocks = image_from_png("test/bird.png");
+    /* image* range_blocks = image_from_png("test/bird.png"); */
+    /* image* range_blocks = image_from_png("test/hs.png"); */
+    /* image* range_blocks = image_from_png("test/hybrid.png"); */
+    image* range_blocks = image_from_png("test/birdinhouse.png");
 
     debug("READING IMAGE\n");
 
@@ -40,7 +43,7 @@ int main() {
 
     debug("ENCODING FINISHED\n");
 
-    /* print_encoding(); */
+    print_encoding(compress);
 
     debug("DECODING IMAGE\n");
 

@@ -24,5 +24,7 @@ void tf_collection_destroy(tf_collection* tfc);
 
 float regression(block* domain, block* range, int orient, tf_data& tf);
 
+void print_encoding(tf_collection* tfc);
+
 #endif
 

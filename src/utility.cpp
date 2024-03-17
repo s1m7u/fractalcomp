@@ -3,30 +3,6 @@
 #include <stdlib.h>
 #include <png.h>
 
-/* void print_encoding() { */
-/*     FILE *encoding_file = fopen("encoding.txt", "w"); */
-/*     for (int i = 0; i < NUM_R_BLOCKS; i++) { */
-/*         for (int j = 0; j < NUM_R_BLOCKS; j++) { */          
-/*             fprintf( */
-/*                     encoding_file, */
-/*                     "%4d: (%2d, %2d) -> (%2d %2d) " */
-/*                     "s:%4d o:%2d c:%+2.2f b:%+2.2f r:%+2.2f\n", */ 
-/*                     i * NUM_R_BLOCKS + j, */ 
-/*                     compressed_data[i][j].d_block[0], */
-/*                     compressed_data[i][j].d_block[1], */
-/*                     i, j, */
-/*                     compressed_data[i][j].shrink_ratio, */
-/*                     compressed_data[i][j].orient, */
-/*                     compressed_data[i][j].contrast, */
-/*                     compressed_data[i][j].brightness, */
-/*                     compressed_data[i][j].residual */
-/*                    ); */
-/*         } */        
-/*     } */
-/*     fclose(encoding_file); */
-/*     printf("Success: encoding.txt created.\n"); */
-/* } */
-
 void print_image(const char *s, tile image_to_print[NUM_TILES][NUM_TILES]) {
     FILE *image_file = fopen(s, "w");
     for (int i = 0; i < IMAGE_SIZE; i++) {
