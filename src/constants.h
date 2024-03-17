@@ -6,7 +6,7 @@
 #define R_BLOCK_SIZE 4
 #define D_BLOCK_SIZE 8
 
-#define NUM_ITERATIONS 100
+#define NUM_ITERATIONS 10
 
 #define SEED 1243
 

@@ -2,11 +2,13 @@
 #define DECODE_H
 
 #include "constants.h"
-#include "globals.h"
-#include "structs.h"
-#include <stdlib.h>
 #include "utility.h"
+#include "image.h"
+#include "tf.h"
+#include "config.h"
 
-void decode();
+#include <stdlib.h>
+
+void decode(tf_collection* compress);
 
 #endif

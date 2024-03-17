@@ -14,12 +14,12 @@ BDIR=bin
 
 #Dependencies
 IDIR=src
-_DEPS = constants.h main.cpp decode.cpp encode.cpp globals.cpp regression.cpp utility.cpp
+_DEPS = block.cpp constants.cpp decode.cpp encode.cpp image.cpp main.cpp tf.cpp utility.cpp
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 #Object files
 ODIR=obj
-_OBJ = constants.o main.o decode.o encode.o globals.o regression.o utility.o
+_OBJ = block.o constants.o decode.o encode.o image.o main.o tf.o utility.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: $(IDIR)/%.cpp $(DEPS)

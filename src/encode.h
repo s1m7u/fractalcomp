@@ -1,10 +1,10 @@
 #ifndef ENCODE_H
 #define ENCODE_H
 
-#include "constants.h"
-#include "globals.h"
-#include "regression.h"
+#include "image.h"
+#include "tf.h"
+#include "config.h"
 
-void encode();
+tf_collection* encode(image* range, image* domain, unsigned int blockSize);
 
 #endif

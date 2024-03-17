@@ -1,50 +1,54 @@
-#include "encode.h"
 #include <stdlib.h>
 #include <stdio.h>
 
-void encode() {
-    // for each range block:
-    for (int i = 0; i < NUM_R_BLOCKS; i++) {
-        for (int j = 0; j < NUM_R_BLOCKS; j++) {
-            /* printf("PROCESSING BLOCK: %d %d\n", i, j); */
-            // find the minimum residuals
-            if(range_blocks[i][j].sum_sq == 0) {
-                compressed_data[i][j] = {
-                    .shrink_ratio = 2,
-                    .d_block = {0, 0},
-                    .orient = 0,
-                    .contrast = 0,
-                    .brightness = range_blocks[i][j].vals[0][0],
-                    .residual = 0
-                };
-                continue;
-            }
+#include "encode.h"
+#include "block.h"
 
-            tf_data minimum = regression(domain_blocks[0][0], range_blocks[i][j], 0);
-            for (int k = 0; k < NUM_D_BLOCKS; k++) {
-                for (int l = 0; l < NUM_D_BLOCKS; l++) {
-                    for (int o = 0; o < 8; o++) {
-                        tf_data temp = regression(domain_blocks[k][l], range_blocks[i][j], o);
+tf_collection* encode(image* range, image* domain, unsigned int blockSize) {
+    tf_collection* ret = tf_collection_create(range->height, range->width);
 
-                        /* printf("%f %f\n", range_blocks[i][j].mean, domain_blocks[k][l].mean); */
-                        /* printf("%f %f\n", temp.contrast, temp.brightness); */
-                        if(temp.brightness < 0 
-                                || temp.brightness > 255
-                                || temp.brightness + 255*temp.contrast < 0
-                                || temp.brightness + 255*temp.contrast > 255) {
+    block* dBlock = block_create(0,0,blockSize,domain);
+    block* rBlock = block_create(0,0,blockSize,range);
+    for(unsigned int ry = 0; ry < range->height; ry += blockSize) {
+        for(unsigned int rx = 0; rx < range->width; rx += blockSize) {
+            rBlock->y = ry;
+            rBlock->x = rx;
+
+            tf_data best = {
+                .d_block = {0, 0},
+                .r_block = {ry, rx},
+                .size = blockSize,
+                .orient = 0,
+                .contrast = 0,
+                .brightness = (float)yx_to_val(ry,rx,range),
+            };
+
+            tf_data cur = best;
+
+            float minimum = 100000;
+            for(unsigned int dy = 0; dy < domain->height; dy += blockSize) {
+                for(unsigned int dx = 0; dx < domain->width; dx += blockSize) {
+                    dBlock->y = dy;
+                    dBlock->x = dx;
+                    for(unsigned int o = 0; o < 8; o++) {
+                        float res = regression(dBlock, rBlock, o, cur);
+                        if(cur.brightness < 0 
+                                || cur.brightness > 255
+                                || cur.brightness + 255*cur.contrast < 0
+                                || cur.brightness + 255*cur.contrast > 255) {
                             continue;
                         }
-                        if(temp.residual < minimum.residual) {
-                            minimum = temp;
-                            minimum.d_block[0] = k;
-                            minimum.d_block[1] = l;
+                        if(res < minimum) {
+                            minimum = res;
+                            best = cur;
                         }
                     }
-                    /* printf("\n"); */
                 }
             }
-            compressed_data[i][j] = minimum;
+            ret->tfs.push_back(best);
         }
     }
+
+    return ret;
 }
 

@@ -2,9 +2,10 @@
 #define UTILITY_H
 
 #include <math.h>
+
+#include "config.h"
 #include "constants.h"
-#include "structs.h"
-#include "globals.h"
+#include "tile.h"
 
 void init_image();
 void print_encoding();
@@ -14,19 +15,16 @@ void import_image(const char* s);
 
 void save_image(const char *s, tile image_to_print[NUM_TILES][NUM_TILES]);
 
-void tile_stats_calc(tile* t);
-inline int& yx_to_val(int y, int x, tile i[NUM_R_BLOCKS][NUM_R_BLOCKS]) {
+inline unsigned int& yx_to_val(int y, int x, tile i[NUM_R_BLOCKS][NUM_R_BLOCKS]) {
     return i[y/TILE_SIZE][x/TILE_SIZE].vals[y%TILE_SIZE][x%TILE_SIZE];
 }
-tile& yx_to_tile(int y, int x, tile i[NUM_R_BLOCKS][NUM_R_BLOCKS]);
-
-inline void calc_pos(int i, int j, int* y, int* x, int orient) {
-    i++;
-    j++;
-    *y = orientations[orient][0][0] * i + orientations[orient][0][1] * j;
-    *x = orientations[orient][1][0] * i + orientations[orient][1][1] * j;
-    *y = (*y + TILE_SIZE+1)% (TILE_SIZE+1);
-    *x = (*x + TILE_SIZE+1)% (TILE_SIZE+1);
+inline void calc_pos(unsigned int* y, unsigned int* x, unsigned int orient, unsigned int size) {
+    *y += 1;
+    *x += 1;
+    *y = orientations[orient][0][0] * *y + orientations[orient][0][1] * *x;
+    *x = orientations[orient][1][0] * *y + orientations[orient][1][1] * *x;
+    *y = (*y + size+1)% (size+1);
+    *x = (*x + size+1)% (size+1);
     *y -= 1;
     *x -= 1;
 }
