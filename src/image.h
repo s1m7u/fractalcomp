@@ -10,8 +10,8 @@ typedef struct struct_image {
     unsigned int height, width;
     unsigned int tileNum;
     tile* pixels;
-    unsigned int* pfxSum;
-    unsigned long int* pfxSumOfSq;
+    int* pfxSum;
+    long int* pfxSumOfSq;
 } image;
 
 image* image_create(unsigned int height, unsigned int width);

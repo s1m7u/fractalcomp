@@ -9,8 +9,8 @@ image* image_create(unsigned int height, unsigned int width) {
     ret->width = width;
     ret->tileNum = (height / TILE_SIZE) * (width / TILE_SIZE);
     ret->pixels = new tile[ret->tileNum];
-    ret->pfxSum = new unsigned int[height*width];
-    ret->pfxSumOfSq = new unsigned long int[height*width];
+    ret->pfxSum = new int[height*width];
+    ret->pfxSumOfSq = new long int[height*width];
     return ret;
 }
 
@@ -33,7 +33,7 @@ static void image_stats_calc(image* img) {
     for(unsigned int y = 1; y < img->height; y++) {
         for(unsigned int x = 1; x < img->width; x++) {
             img->pfxSum[y*img->width+x] = img->pfxSum[(y-1)*img->width+x]
-                - img->pfxSum[y*img->width + (x-1)]
+                + img->pfxSum[y*img->width + (x-1)]
                 - img->pfxSum[(y-1)*img->width + (x-1)]
                 + yx_to_val(y,x,img);
         }
@@ -44,14 +44,14 @@ static void image_stats_calc(image* img) {
         img->pfxSumOfSq[x] = img->pfxSumOfSq[x-1] + yx_to_val(0,x,img)*yx_to_val(0,x,img);
     }
     for(unsigned int y = 1; y < img->height; y++) {
-        img->pfxSum[y*img->width] = img->pfxSum[(y-1)*img->width] + yx_to_val(y,0,img)*yx_to_val(y,0,img);
+        img->pfxSumOfSq[y*img->width] = img->pfxSumOfSq[(y-1)*img->width] + yx_to_val(y,0,img)*yx_to_val(y,0,img);
     }
 
     for(unsigned int y = 1; y < img->height; y++) {
         for(unsigned int x = 1; x < img->width; x++) {
-            img->pfxSum[y*img->width+x] = img->pfxSum[(y-1)*img->width+x]
-                - img->pfxSum[y*img->width + (x-1)]
-                - img->pfxSum[(y-1)*img->width + (x-1)]
+            img->pfxSumOfSq[y*img->width+x] = img->pfxSumOfSq[(y-1)*img->width+x]
+                + img->pfxSumOfSq[y*img->width + (x-1)]
+                - img->pfxSumOfSq[(y-1)*img->width + (x-1)]
                 + yx_to_val(y,x,img)*yx_to_val(y,x,img);
         }
     }
