@@ -38,7 +38,7 @@ int main() {
 
     debug("ENCODING IMAGE\n");
 
-    tf_collection* compress = encode(range_blocks, domain_blocks, TILE_SIZE);
+    tf_collection* compress = encode(range_blocks, domain_blocks, BLOCK_SIZE);
 
     debug("ENCODING FINISHED\n");
 

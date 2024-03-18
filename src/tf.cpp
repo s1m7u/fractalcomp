@@ -84,5 +84,5 @@ void print_encoding(tf_collection* tfc) {
                );
     }        
     fclose(encoding_file);
-    printf("Success: encoding.txt created.\n");
+    debug("Success: encoding.txt created.\n");
 }

@@ -3,7 +3,9 @@
 
 #define TILE_SIZE 4
 
-#define NUM_ITERATIONS 20
+#define BLOCK_SIZE 4
+
+#define NUM_ITERATIONS 100
 
 #define SEED 1243
 

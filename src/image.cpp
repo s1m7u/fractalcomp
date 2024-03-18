@@ -189,5 +189,5 @@ void print_image(const char *s, image* img) {
         fprintf(image_file, "\n");
     }
     fclose(image_file);
-    printf("Success: %s created.\n", s);
+    debug("Success: %s created.\n", s);
 }
