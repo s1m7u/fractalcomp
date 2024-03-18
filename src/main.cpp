@@ -22,7 +22,9 @@ int main() {
     /* image* range_blocks = image_from_png("test/bird.png"); */
     /* image* range_blocks = image_from_png("test/hs.png"); */
     /* image* range_blocks = image_from_png("test/hybrid.png"); */
-    image* range_blocks = image_from_png("test/birdinhouse.png");
+    /* image* range_blocks = image_from_png("test/birdinhouse.png"); */
+    image* range_blocks = image_from_png("test/peppers.png");
+    image* range_blocks = image_from_png("test/airport.png");
 
     debug("READING IMAGE\n");
 
