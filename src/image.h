@@ -1,10 +1,9 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include "tile.h"
 #include "config.h"
+
+#include "tile.h"
 
 typedef struct struct_image {
     unsigned int height, width;

@@ -1,6 +1,6 @@
 #include <png.h>
+#include <stdlib.h>
 
-#include "utility.h"
 #include "image.h"
 
 image* image_create(unsigned int height, unsigned int width) {

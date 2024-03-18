@@ -6,7 +6,6 @@
 #include "constants.h"
 #include "encode.h"
 #include "decode.h"
-#include "utility.h"
 #include "image.h"
 
 // main function

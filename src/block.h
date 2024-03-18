@@ -2,6 +2,7 @@
 #define BLOCK_H
 
 #include "config.h"
+
 #include "image.h"
 
 typedef struct struct_block {
@@ -33,6 +34,17 @@ inline long int blockSumOfSq(block* b) {
 //assumes y,x < size
 inline unsigned int& yx_to_val(int y, int x, block* b) {
     return yx_to_val(b->y + y, b->x + x,b->img);
+}
+
+inline void calc_pos(unsigned int* y, unsigned int* x, unsigned int orient, unsigned int size) {
+    *y += 1;
+    *x += 1;
+    *y = orientations[orient][0][0] * *y + orientations[orient][0][1] * *x;
+    *x = orientations[orient][1][0] * *y + orientations[orient][1][1] * *x;
+    *y = (*y + size+1)% (size+1);
+    *x = (*x + size+1)% (size+1);
+    *y -= 1;
+    *x -= 1;
 }
 
 #endif

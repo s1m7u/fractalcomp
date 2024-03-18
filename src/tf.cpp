@@ -1,6 +1,7 @@
+#include <stdio.h>
+
 #include "tf.h"
 #include "block.h"
-#include "utility.h"
 
 tf_collection* tf_collection_create(unsigned int height, unsigned int width) {
     tf_collection* ret = new tf_collection;

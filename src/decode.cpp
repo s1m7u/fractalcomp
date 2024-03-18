@@ -1,6 +1,7 @@
+#include <stdlib.h>
+
 #include "decode.h"
 #include "tf.h"
-#include <stdio.h>
 
 void decode(tf_collection* compress) {
     unsigned int height = compress->height;

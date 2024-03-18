@@ -1,8 +1,9 @@
 #ifndef TF_H
 #define TF_H
 
-#include "block.h"
 #include "config.h"
+
+#include "block.h"
 #include <vector>
 
 typedef struct struct_tf_data {
