@@ -17,7 +17,7 @@ void decode(tf_collection* compress) {
     }
 
     save_image("random.png", buffers[0]);
-    /* print_image("random_image.txt", buffers[0]); */
+    print_image("random_image.txt", buffers[0]);
 
     for(unsigned int iter = 0; iter < NUM_ITERATIONS; iter++) {
         for(unsigned int y = 0; y < height/2; y++) {
@@ -44,7 +44,7 @@ void decode(tf_collection* compress) {
     }
 
     save_image("decoded.png", buffers[NUM_ITERATIONS%2]);
-    /* print_image("decoded_image.txt", buffers[NUM_ITERATIONS%2]); */
+    print_image("decoded_image.txt", buffers[NUM_ITERATIONS%2]);
 
     image_destroy(buffers[0]);
     image_destroy(buffers[1]);

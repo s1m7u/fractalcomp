@@ -26,4 +26,5 @@ inline unsigned int& yx_to_val(int y, int x, image* i) {
     return i->pixels[(y/TILE_SIZE)*(i->width/TILE_SIZE) + x/TILE_SIZE].vals[y%TILE_SIZE][x%TILE_SIZE];
 }
 
+void print_image(const char *s, image* img);
 #endif

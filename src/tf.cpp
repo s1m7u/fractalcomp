@@ -29,7 +29,7 @@ float regression(block* domain, block* range, int orient, tf_data& tf) {
     for(unsigned int i = 0; i < domain->size; i++) {
         for(unsigned int j = 0; j < domain->size; j++) {
             unsigned int y = i, x = j;
-            calc_pos(&y, &x, orient,domain->size);
+            calc_pos(&y, &x, orient, domain->size);
 
             xy += yx_to_val(y,x,domain) * yx_to_val(i,j,range);
         }
@@ -38,13 +38,14 @@ float regression(block* domain, block* range, int orient, tf_data& tf) {
     float rs = (float)blockSum(range);
 
     tf.contrast = ((float)(domain->size * domain->size * xy) - ds * rs)/denom;
-    tf.brightness = (float)(rs * dsq - ds * xy)/denom;
+    /* tf.brightness = (float)(rs * dsq - ds * xy)/denom; */
+    tf.brightness = (float)(rs - tf.contrast * ds)/(domain->size*domain->size);
     /* printf("%f %f\n", tf.contrast, tf.brightness); */
     tf.d_block[0] = domain->y;
     tf.d_block[1] = domain->x;
     tf.r_block[0] = range->y;
     tf.r_block[1] = range->x;
-    tf.size = domain->size;
+    tf.size = range->size;
     tf.orient = orient;
 
     float residual = 0;

@@ -9,8 +9,8 @@ image* image_create(unsigned int height, unsigned int width) {
     ret->width = width;
     ret->tileNum = (height / TILE_SIZE) * (width / TILE_SIZE);
     ret->pixels = new tile[ret->tileNum];
-    ret->pfxSum = new int[height*width];
-    ret->pfxSumOfSq = new long int[height*width];
+    ret->pfxSum = new int[(height+1)*(width+1)]();
+    ret->pfxSumOfSq = new long int[(height+1)*(width+1)]();
     return ret;
 }
 
@@ -22,39 +22,19 @@ void image_destroy(image* img) {
 }
 
 static void image_stats_calc(image* img) {
-    img->pfxSum[0] = yx_to_val(0,0,img);
-    for(unsigned int x = 1; x < img->width; x++) {
-        img->pfxSum[x] = img->pfxSum[x-1] + yx_to_val(0,x,img);
-    }
-    for(unsigned int y = 1; y < img->height; y++) {
-        img->pfxSum[y*img->width] = img->pfxSum[(y-1)*img->width] + yx_to_val(y,0,img);
-    }
-
-    for(unsigned int y = 1; y < img->height; y++) {
-        for(unsigned int x = 1; x < img->width; x++) {
-            img->pfxSum[y*img->width+x] = img->pfxSum[(y-1)*img->width+x]
-                + img->pfxSum[y*img->width + (x-1)]
-                - img->pfxSum[(y-1)*img->width + (x-1)]
-                + yx_to_val(y,x,img);
+    for(unsigned int y = 1; y <= img->height; y++) {
+        for(unsigned int x = 1; x <= img->width; x++) {
+            img->pfxSum[y*(img->width+1)+x] = img->pfxSum[(y-1)*(img->width+1)+x]
+                + img->pfxSum[y*(img->width+1) + (x-1)]
+                - img->pfxSum[(y-1)*(img->width+1) + (x-1)]
+                + yx_to_val(y-1,x-1,img);
+            img->pfxSumOfSq[y*(img->width+1)+x] = img->pfxSumOfSq[(y-1)*(img->width+1)+x]
+                + img->pfxSumOfSq[y*(img->width+1) + (x-1)]
+                - img->pfxSumOfSq[(y-1)*(img->width+1) + (x-1)]
+                + yx_to_val(y-1,x-1,img)*yx_to_val(y-1,x-1,img);
         }
     }
-
-    img->pfxSumOfSq[0] = yx_to_val(0,0,img)*yx_to_val(0,0,img);
-    for(unsigned int x = 1; x < img->width; x++) {
-        img->pfxSumOfSq[x] = img->pfxSumOfSq[x-1] + yx_to_val(0,x,img)*yx_to_val(0,x,img);
-    }
-    for(unsigned int y = 1; y < img->height; y++) {
-        img->pfxSumOfSq[y*img->width] = img->pfxSumOfSq[(y-1)*img->width] + yx_to_val(y,0,img)*yx_to_val(y,0,img);
-    }
-
-    for(unsigned int y = 1; y < img->height; y++) {
-        for(unsigned int x = 1; x < img->width; x++) {
-            img->pfxSumOfSq[y*img->width+x] = img->pfxSumOfSq[(y-1)*img->width+x]
-                + img->pfxSumOfSq[y*img->width + (x-1)]
-                - img->pfxSumOfSq[(y-1)*img->width + (x-1)]
-                + yx_to_val(y,x,img)*yx_to_val(y,x,img);
-        }
-    }
+    
 }
 
 image* downsample_by_two(image* img) {
@@ -145,14 +125,14 @@ void save_image(const char *s, image* img) {
     png_byte** row_pointers;
     FILE* fp;
 
-    row_pointers = (png_byte**)malloc(sizeof(png_byte*) * IMAGE_SIZE);
+    row_pointers = (png_byte**)malloc(sizeof(png_byte*) * img->height);
 
-    for (int i = 0; i < IMAGE_SIZE; i++) {
-        row_pointers[i] = (png_byte*)malloc(4*IMAGE_SIZE);
+    for (int i = 0; i < img->height; i++) {
+        row_pointers[i] = (png_byte*)malloc(4*img->width);
     }
 
-    for(unsigned int y = 0; y < IMAGE_SIZE; y++) {
-        for(unsigned int x = 0; x < 4*IMAGE_SIZE; x+=4) {
+    for(unsigned int y = 0; y < img->height; y++) {
+        for(unsigned int x = 0; x < 4*img->width; x+=4) {
             row_pointers[y][x] = yx_to_val(y,x/4,img);
             row_pointers[y][x+1] = row_pointers[y][x];
             row_pointers[y][x+2] = row_pointers[y][x];
@@ -177,8 +157,8 @@ void save_image(const char *s, image* img) {
     png_set_IHDR( 
             png, 
             info, 
-            IMAGE_SIZE, 
-            IMAGE_SIZE, 
+            img->height, 
+            img->width, 
             8, 
             PNG_COLOR_TYPE_RGBA, 
             PNG_INTERLACE_NONE, 
@@ -190,7 +170,7 @@ void save_image(const char *s, image* img) {
     png_write_end(png, NULL);
     
     fclose(fp);
-    for (int i = 0; i < IMAGE_SIZE; i++) {
+    for (int i = 0; i < img->height;i++) {
         if (row_pointers[i]) {
             free(row_pointers[i]);
         }
@@ -200,3 +180,14 @@ void save_image(const char *s, image* img) {
     }
 }
 
+void print_image(const char *s, image* img) {
+    FILE *image_file = fopen(s, "w");
+    for (int y = 0; y < img->height; y++) {
+        for (int x = 0; x < img->width; x++) {
+            fprintf(image_file, "%3d ", yx_to_val(y,x,img));
+        }
+        fprintf(image_file, "\n");
+    }
+    fclose(image_file);
+    printf("Success: %s created.\n", s);
+}

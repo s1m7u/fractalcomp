@@ -3,17 +3,6 @@
 #include <stdlib.h>
 #include <png.h>
 
-void print_image(const char *s, tile image_to_print[NUM_TILES][NUM_TILES]) {
-    FILE *image_file = fopen(s, "w");
-    for (int i = 0; i < IMAGE_SIZE; i++) {
-        for (int j = 0; j < IMAGE_SIZE; j++) {
-            fprintf(image_file, "%3d ", image_to_print[i / 4][j / 4].vals[i % 4][j % 4]);
-        }
-        fprintf(image_file, "\n");
-    }
-    fclose(image_file);
-    printf("Success: %s created.\n", s);
-}
 
 void save_image(const char *s, tile image_to_print[NUM_TILES][NUM_TILES]) {
     png_byte** row_pointers;

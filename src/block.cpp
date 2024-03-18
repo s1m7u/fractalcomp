@@ -8,6 +8,7 @@ block* block_create(int y, int x, int size, image* img) {
     ret->img = img;
     return ret;
 }
+
 void block_destroy(block* b) {
     delete b;
 }
