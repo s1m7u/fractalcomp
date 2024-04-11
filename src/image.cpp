@@ -1,5 +1,6 @@
 #include <png.h>
 #include <stdlib.h>
+#include <cstdio>
 
 #include "image.h"
 
@@ -92,7 +93,7 @@ image* image_from_png(const char *s) {
 
     // Set up row pointer
     png_bytep *row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
-    unsigned int i, j;
+    int i, j;
     for (i = 0; i < height; i++)
         row_pointers[i] = (png_bytep)malloc(png_get_rowbytes(png,info));
     png_read_image(png, row_pointers);
@@ -101,7 +102,7 @@ image* image_from_png(const char *s) {
 
     image* ret = image_create(height, width);
 
-    debug("IMAGE DIMENSIONS ARE: %d %d\n", height, width);
+    // debug("IMAGE DIMENSIONS ARE: %d %d\n", height, width);
 
     for (i = 0 ; i < height ; i++)
     {
@@ -127,7 +128,7 @@ void save_image(const char *s, image* img) {
 
     row_pointers = (png_byte**)malloc(sizeof(png_byte*) * img->height);
 
-    for (int i = 0; i < img->height; i++) {
+    for (unsigned int i = 0; i < img->height; i++) {
         row_pointers[i] = (png_byte*)malloc(4*img->width);
     }
 
@@ -170,7 +171,7 @@ void save_image(const char *s, image* img) {
     png_write_end(png, NULL);
     
     fclose(fp);
-    for (int i = 0; i < img->height;i++) {
+    for (unsigned int i = 0; i < img->height;i++) {
         if (row_pointers[i]) {
             free(row_pointers[i]);
         }
@@ -182,8 +183,8 @@ void save_image(const char *s, image* img) {
 
 void print_image(const char *s, image* img) {
     FILE *image_file = fopen(s, "w");
-    for (int y = 0; y < img->height; y++) {
-        for (int x = 0; x < img->width; x++) {
+    for (unsigned int y = 0; y < img->height; y++) {
+        for (unsigned int x = 0; x < img->width; x++) {
             fprintf(image_file, "%3d ", yx_to_val(y,x,img));
         }
         fprintf(image_file, "\n");

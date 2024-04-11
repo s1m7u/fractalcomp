@@ -3,7 +3,7 @@
 #include "decode.h"
 #include "tf.h"
 
-void decode(tf_collection* compress) {
+void decode(tf_collection* compress, const char *s) {
     unsigned int height = compress->height;
     unsigned int width = compress->width;
     image* buffers[2];
@@ -42,11 +42,17 @@ void decode(tf_collection* compress) {
                 }
             }
         }
+        // calculate rmse at this stage
+        encoding_stats_pb(s, buffers[(iter+1)%2], iter);
     }
 
     save_image("decoded.png", buffers[NUM_ITERATIONS%2]);
     print_image("decoded_image.txt", buffers[NUM_ITERATIONS%2]);
 
+    encoding_stats_pb(s, buffers[1], NUM_ITERATIONS);
+
     image_destroy(buffers[0]);
     image_destroy(buffers[1]);
 }
+
+

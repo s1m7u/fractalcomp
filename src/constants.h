@@ -5,7 +5,9 @@
 
 #define BLOCK_SIZE 4
 
-#define NUM_ITERATIONS 100
+#define NUM_ITERATIONS 11
+
+#define JPEG_COMPRESSION_QUALITY 75
 
 #define SEED 1243
 

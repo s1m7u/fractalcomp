@@ -5,6 +5,6 @@
 
 #include "tf.h"
 
-void decode(tf_collection* compress);
+void decode(tf_collection* compress, const char *s);
 
 #endif

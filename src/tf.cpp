@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <cmath>
+#include <regex>
 
 #include "tf.h"
 #include "block.h"
@@ -85,4 +87,92 @@ void print_encoding(tf_collection* tfc) {
     }        
     fclose(encoding_file);
     debug("Success: encoding.txt created.\n");
+}
+
+void encode_stats_pp(const char *original, const char *decompressed) {
+    image* original_image = image_from_png(original);
+    image *decomp_image = image_from_png(decompressed);
+
+    if (original_image->height != decomp_image->height || original_image->width != decomp_image->width) {
+        debug("encode_stats: Images are not same size\n");
+        return;
+    }
+
+    int height = original_image->height;
+    int width = original_image->width;
+
+    double rmse = 0;
+    int temp = 0;
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            temp = yx_to_val(i, j, original_image) - yx_to_val(i, j, decomp_image);
+            rmse += temp * temp;
+        }
+    }
+
+    rmse /= height * width;
+    rmse = std::sqrt(rmse);
+
+    FILE *stats = fopen("stats.txt", "a");
+    fprintf(stats, "RMSE of %s and %s: %lf\n", original, decompressed, rmse);
+    fclose(stats);
+    debug("Success: stats.txt created/appended.\n");
+}
+
+void encode_stats_pj(const char *png, const char *jpeg) {
+    image* png_image = image_from_png(png);
+    image *jpeg_image = jpeg_to_image(jpeg);
+
+    if (png_image->height != jpeg_image->height || png_image->width != jpeg_image->width) {
+        debug("encode_stats: Images are not same size\n");
+        return;
+    }
+
+    int height = png_image->height;
+    int width = png_image->width;
+
+    double rmse = 0;
+    int temp = 0;
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            temp = yx_to_val(i, j, png_image) - yx_to_val(i, j, jpeg_image);
+            rmse += temp * temp;
+        }
+    }
+
+    rmse /= height * width;
+    rmse = std::sqrt(rmse);
+
+    FILE *stats = fopen("stats.txt", "a");
+    fprintf(stats, "RMSE of %s and %s: %lf\n", png, jpeg, rmse);
+    fclose(stats);
+    debug("Success: stats.txt created/appended.\n");
+}
+
+void encoding_stats_pb(const char *s, image* buffer, int i) {
+    image *original = image_from_png(s);
+
+    if (buffer->height != original->height || buffer->width != original->width) {
+        debug("encode_stats: Images are not same size\n");
+        return;
+    }
+
+    int height = buffer->height;
+    int width = buffer->width;
+
+    double rmse = 0;
+    int temp = 0;
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            temp = yx_to_val(i, j, buffer) - yx_to_val(i, j, original);
+            rmse += temp * temp;
+        }
+    }
+
+    rmse /= height * width;
+    rmse = std::sqrt(rmse);
+
+    FILE *stats = fopen("stats.txt", "a");
+    fprintf(stats, "Iteration %d: RMSE %lf\n", i, rmse);
+    fclose(stats);
 }

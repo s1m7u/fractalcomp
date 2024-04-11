@@ -8,18 +8,18 @@ CFLAGS += -Wall -Wextra -pedantic -O3 -march=native
 
 .PHONY: clean
 
-LIBS=-lm -lpng
+LIBS= -lm -lpng -ljpeg
 
-BDIR=bin
+BDIR= bin
 
 #Dependencies
 IDIR=src
-_DEPS = block.cpp constants.cpp decode.cpp encode.cpp image.cpp main.cpp tf.cpp
+_DEPS = block.cpp constants.cpp decode.cpp encode.cpp image.cpp main.cpp tf.cpp jpeg.cpp
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 #Object files
 ODIR=obj
-_OBJ = block.o constants.o decode.o encode.o image.o main.o tf.o
+_OBJ = block.o constants.o decode.o encode.o image.o main.o tf.o jpeg.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: $(IDIR)/%.cpp $(DEPS)
