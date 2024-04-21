@@ -118,9 +118,14 @@ float regression_check(block* domain, block* range, int orient, tf_data& tf) {
         }
     }
 
-    float closed_form = tf.contrast * tf.contrast * dsq + 2*tf.contrast*tf.brightness*ds - 2*tf.contrast * sumdr + tf.brightness * tf.brightness * domain->size * domain->size - 2 * tf.brightness*rs + ((float)blockSumOfSq(range));
+    float closed_form = tf.contrast * tf.contrast * dsq 
+        + 2*tf.contrast*tf.brightness*ds 
+        - 2*tf.contrast * sumdr 
+        + tf.brightness * tf.brightness * (float)domain->size * (float)domain->size 
+        - 2 * tf.brightness*rs 
+        + ((float)blockSumOfSq(range));
 
-    printf("%f, %f, makes %f\n", residual, closed_form, residual - closed_form);
+    /* printf("%f, %f, makes %f\n", residual, closed_form, residual - closed_form); */
 
     return residual;
 }

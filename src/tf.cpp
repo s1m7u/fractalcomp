@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "tf.h"
 #include "block.h"
@@ -16,17 +17,40 @@ void tf_collection_create(tf_collection* tfc) {
 }
 
 float regression_check(block* domain, block* range, int orient, tf_data& tf) {
-    float ds = (float)blockSum(domain);
-    float dsq = (float)blockSumOfSq(domain);
 
-    float denom = domain->size * domain->size * dsq - ds * ds;
+    double ds = (double)blockSum(domain);
+    double dsq = (double)blockSumOfSq(domain);
+
+    double rs = (double)blockSum(range);
+    double rsq = (double)blockSumOfSq(range);
+
+    int ds_check = 0;
+    int dsq_check = 0;
+    int rs_check = 0;
+    int rsq_check = 0;
+    for(unsigned int i = 0; i < domain->size; i++) {
+        for(unsigned int j = 0; j < domain->size; j++) {
+            ds_check += yx_to_val(i,j,domain);
+            dsq_check += yx_to_val(i,j,domain) * yx_to_val(i,j,domain);
+            rs_check += yx_to_val(i,j,range);
+            rsq_check += yx_to_val(i,j,range) * yx_to_val(i,j,range);
+        }
+    }
+    if(ds_check != blockSum(domain) || dsq_check != blockSumOfSq(domain)
+    || rs_check != blockSum(range) || rsq_check != blockSumOfSq(range)) {
+        printf("%d %d %d %d\n", rs_check, rsq_check, ds_check, dsq_check);
+        printf("%f %f %f %f\n", rs, rsq, ds, dsq);
+        printf("NANI\n");
+        exit(0);
+    }
+
+    double denom = domain->size * domain->size * dsq - ds * ds;
 
     if(denom == 0) {
         return 100000;
     }
 
-
-    float xy = 0;
+    double xy = 0;
     for(unsigned int i = 0; i < domain->size; i++) {
         for(unsigned int j = 0; j < domain->size; j++) {
             unsigned int y = i, x = j;
@@ -36,11 +60,9 @@ float regression_check(block* domain, block* range, int orient, tf_data& tf) {
         }
     }
 
-    float rs = (float)blockSum(range);
-
-    tf.contrast = ((float)(domain->size * domain->size * xy) - ds * rs)/denom;
-    /* tf.brightness = (float)(rs * dsq - ds * xy)/denom; */
-    tf.brightness = (float)(rs - tf.contrast * ds)/(domain->size*domain->size);
+    tf.contrast = ((double)(domain->size * domain->size * xy) - ds * rs)/denom;
+    /* tf.brightness = (double)(rs * dsq - ds * xy)/denom; */
+    tf.brightness = (double)(rs - tf.contrast * ds)/(domain->size*domain->size);
     /* printf("%f %f\n", tf.contrast, tf.brightness); */
     tf.d_block[0] = domain->y;
     tf.d_block[1] = domain->x;
@@ -49,27 +71,39 @@ float regression_check(block* domain, block* range, int orient, tf_data& tf) {
     tf.size = range->size;
     tf.orient = orient;
 
-    float residual = 0;
+    double residual = 0;
 
-    float sumdr = 0;
+    double sumdr = 0;
 
     for(unsigned int i = 0; i < domain->size; i++) {
         for(unsigned int j = 0; j < domain->size; j++) {
             unsigned int y = i, x = j;
             calc_pos(&y, &x, orient,domain->size);
 
-            float temp = (yx_to_val(y,x,domain) * tf.contrast + tf.brightness 
+            double temp = (yx_to_val(y,x,domain) * tf.contrast + tf.brightness 
                     - yx_to_val(i,j,range));
-            temp *= temp;
+            /* double temp = (yx_to_val(y,x,domain) * tf.contrast + tf.brightness ); */
+            /* double temp = (yx_to_val(y,x,domain) * tf.contrast); */
+            /* double temp = ((double)yx_to_val(i,j,domain) ) * ((double)yx_to_val(i,j,domain) ); */
+            /* temp *= temp; */
             residual += temp;
 
             sumdr += yx_to_val(y,x,domain) * yx_to_val(i,j,range);
         }
     }
 
-    float closed_form = tf.contrast * tf.contrast * dsq + 2*tf.contrast*tf.brightness*ds - 2*tf.contrast * sumdr + tf.brightness * tf.brightness * domain->size * domain->size - 2 * tf.brightness*rs + ((float)blockSumOfSq(range));
+    double closed_form = 
+        tf.contrast * tf.contrast * dsq 
+        + 2*tf.contrast*tf.brightness*ds 
+        - 2*tf.contrast * xy
+        + tf.brightness * tf.brightness * domain->size * domain->size 
+        - 2 * tf.brightness*rs 
+        + ((double)blockSumOfSq(range));
+
 
     if (residual - closed_form > 1000) {
+        /* printf("%d %d %d %d\n", rs_check, rsq_check, ds_check, dsq_check); */
+        /* printf("%f %f %f %f\n", rs, rsq, ds, dsq); */
         printf("%f, %f, makes %f\n", residual, closed_form, residual - closed_form);
     }
 

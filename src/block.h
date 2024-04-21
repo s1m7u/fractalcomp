@@ -39,8 +39,9 @@ inline unsigned int& yx_to_val(int y, int x, block* b) {
 inline void calc_pos(unsigned int* y, unsigned int* x, unsigned int orient, unsigned int size) {
     *y += 1;
     *x += 1;
+    unsigned int oldy = *y;
     *y = orientations[orient][0][0] * *y + orientations[orient][0][1] * *x;
-    *x = orientations[orient][1][0] * *y + orientations[orient][1][1] * *x;
+    *x = orientations[orient][1][0] * oldy + orientations[orient][1][1] * *x;
     *y = (*y + size+1)% (size+1);
     *x = (*x + size+1)% (size+1);
     *y -= 1;
