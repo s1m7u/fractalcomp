@@ -1,22 +1,36 @@
+typedef struct doublepfxsum {
+    double* orig;
+    double* pfxSum;
+    int size; 
+} dps;
+    
+
 typedef struct precomp {
     block* domain;
     block* range;
     int orient;
-    double* pfxsum;
+    dps* dr;
 } precomp;
 
-precomp regression_precomp(block* domain, block* range, int orient, tf_data& tf) {
-    //work towards a reusable regression
-    //float ds = (float)blockSum(domain);
-    //float dsq = (float)blockSumOfSq(domain);
-
-    float denom = domain->size * domain->size * dsq - ds * ds;
-
-    if(denom == 0) {
-        return 100000;
+dps* dps_from_doublep(double* p, int s) {
+    dps* ret = new dps;
+    dps->pfxSum = new double[(s + 1) * (s + 1)];
+    dps->orig = p;
+    // now make the pfxsum
+    for (unsigned int y = 1; y <= s; y++) {
+        for (unsigned int x = 1; x <= s; x++) {
+            dps->pfxSum[y*(s+1)+x] =
+                + dps->pfxSum[(y - 1)*(s+1)+x]
+                + dps->pfxSum[y*(s+1)+x-1]
+                - dps->pfxSum[(y-1)*(s+1)+x-1]
+                + dps->orig[(y-1)*s+x-1];
+        }
     }
+    return ret;
+}
 
-    double* pfxsum = malloc(sizeof(double)*domain->size*domain->size);
+precomp regression_precomp(block* domain, block* range, int orient) {
+    double* orig = new double[(domain->size) * (domain->size)];
     
     float xy = 0;
     for(unsigned int i = 0; i < domain->size; i++) {
@@ -24,74 +38,43 @@ precomp regression_precomp(block* domain, block* range, int orient, tf_data& tf)
             unsigned int y = i, x = j;
             calc_pos(&y, &x, orient, domain->size);
 
-            pfxsum[i * domain->size + j] = yx_to_val(y,x,domain) * yx_to_val(i,j,range);
+            orig[i * domain->size + j] = yx_to_val(y,x,domain) * yx_to_val(i,j,range);
         }
     }
 
-    float rs = (float)blockSum(range);
+    dps* dr = dps_from_doublep(orig, domain->size);
 
-    tf.contrast = ((float)(domain->size * domain->size * xy) - ds * rs)/denom;
-    /* tf.brightness = (float)(rs * dsq - ds * xy)/denom; */
-    tf.brightness = (float)(rs - tf.contrast * ds)/(domain->size*domain->size);
-    /* printf("%f %f\n", tf.contrast, tf.brightness); */
-    tf.d_block[0] = domain->y;
-    tf.d_block[1] = domain->x;
-    tf.r_block[0] = range->y;
-    tf.r_block[1] = range->x;
-    tf.size = range->size;
-    tf.orient = orient;
-
-    float residual = 0;
-
-    for(unsigned int i = 0; i < domain->size; i++) {
-        for(unsigned int j = 0; j < domain->size; j++) {
-            unsigned int y = i, x = j;
-            calc_pos(&y, &x, orient,domain->size);
-
-            float temp = (yx_to_val(y,x,domain) * tf.contrast + tf.brightness 
-                    - yx_to_val(i,j,range));
-            temp *= temp;
-            residual += temp;
-        }
-    }
-
-    return residual;
+    precomp ret;
+    ret.domain = domain;
+    ret.range = range;
+    ret.orient = orient;
+    ret.dr = dr;
+    
+    return ret;
 }
 
-float regression_end(precomp comp, tf_data& tf, int i, int j) { // prob only nec to look at corresp i j in domain, range?
-    float ds = (float) blockSum(domain);
-    float dsq = (float) blockSumofSq(domain);
+float regression_pc(precomp comp, tf_data& tf, int tlx, int tly, int brx, int bry) { // prob only nec to look at corresp i j in domain, range?
+    // for now we ignore the rect given, it should be fairly easy to fix this
+    block* domain = comp.domain;
+    block* range = comp.range;
+    int orient = comp.orient;
+    dps* dr = comp.dr;
+    
+    double ds = (double) blockSum(domain);
+    double dsq = (double) blockSumofSq(domain);
 
-    // ... and so on
+    double rs = (double) blockSum(range);
+    double rsq = (double) blockSumOfSq(range);
 
-}
-
-float regression_check(block* domain, block* range, int orient, tf_data& tf) {
-    float ds = (float)blockSum(domain);
-    float dsq = (float)blockSumOfSq(domain);
-
-    float denom = domain->size * domain->size * dsq - ds * ds;
+    double denom = domain->size * domain->size * dsq - ds * ds;
 
     if(denom == 0) {
         return 100000;
     }
 
-
-    float xy = 0;
-    for(unsigned int i = 0; i < domain->size; i++) {
-        for(unsigned int j = 0; j < domain->size; j++) {
-            unsigned int y = i, x = j;
-            calc_pos(&y, &x, orient, domain->size);
-
-            xy += yx_to_val(y,x,domain) * yx_to_val(i,j,range);
-        }
-    }
-
-    float rs = (float)blockSum(range);
-
-    tf.contrast = ((float)(domain->size * domain->size * xy) - ds * rs)/denom;
-    /* tf.brightness = (float)(rs * dsq - ds * xy)/denom; */
-    tf.brightness = (float)(rs - tf.contrast * ds)/(domain->size*domain->size);
+    tf.contrast = ((double)(domain->size * domain->size * xy) - ds * rs)/denom;
+    /* tf.brightness = (double)(rs * dsq - ds * xy)/denom; */
+    tf.brightness = (double)(rs - tf.contrast * ds)/(domain->size*domain->size);
     /* printf("%f %f\n", tf.contrast, tf.brightness); */
     tf.d_block[0] = domain->y;
     tf.d_block[1] = domain->x;
@@ -100,32 +83,18 @@ float regression_check(block* domain, block* range, int orient, tf_data& tf) {
     tf.size = range->size;
     tf.orient = orient;
 
-    float residual = 0;
-
-    float sumdr = 0;
-
-    for(unsigned int i = 0; i < domain->size; i++) {
-        for(unsigned int j = 0; j < domain->size; j++) {
-            unsigned int y = i, x = j;
-            calc_pos(&y, &x, orient,domain->size);
-
-            float temp = (yx_to_val(y,x,domain) * tf.contrast + tf.brightness 
-                    - yx_to_val(i,j,range));
-            temp *= temp;
-            residual += temp;
-
-            sumdr += yx_to_val(y,x,domain) * yx_to_val(i,j,range);
-        }
-    }
-
-    float closed_form = tf.contrast * tf.contrast * dsq 
+    double closed_form = 
+        tf.contrast * tf.contrast * dsq 
         + 2*tf.contrast*tf.brightness*ds 
-        - 2*tf.contrast * sumdr 
-        + tf.brightness * tf.brightness * (float)domain->size * (float)domain->size 
+        - 2*tf.contrast * (dps[domain->size * (domain->size + 1) + domain->size])
+        + tf.brightness * tf.brightness * domain->size * domain->size 
         - 2 * tf.brightness*rs 
-        + ((float)blockSumOfSq(range));
+        + rsq;
+    
+    return closed_form;
+}
 
-    /* printf("%f, %f, makes %f\n", residual, closed_form, residual - closed_form); */
-
-    return residual;
+float norm_reg(block* domain, block* range, int orient, tf_data& tf) {
+    precomp comp = regression_precomp(domain, range, orient);
+    return regression_pc(comp, tf, 0, 0, domain->size, domain->size);
 }
