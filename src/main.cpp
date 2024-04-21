@@ -19,12 +19,16 @@ int main() {
 
     debug("READING IMAGE\n");
 
-    /* image* range_blocks = image_from_png("test/bird.png"); */
-    /* image* range_blocks = image_from_png("test/hs.png"); */
-    /* image* range_blocks = image_from_png("test/hybrid.png"); */
+    // image* range_blocks = image_from_png("random.png");
+    /* image* range_blocks = image_from_png("test/airport.png"); */
     /* image* range_blocks = image_from_png("test/birdinhouse.png"); */
-    image* range_blocks = image_from_png("test/peppers.png");
-    image* range_blocks = image_from_png("test/airport.png");
+    // image* range_blocks = image_from_png("test/birdinhouse.png");
+    image* range_blocks = image_from_png("test/bird.png");
+    /* image* range_blocks = image_from_png("test/hs.png"); */
+    // image* range_blocks = image_from_png("test/hs.png");
+    /* image* range_blocks = image_from_png("test/hybrid.png"); */
+    // image* range_blocks = image_from_png("test/hybrid.png");
+    /* image* range_blocks = image_from_png("test/peppers.png"); */
 
     debug("READING IMAGE\n");
 
