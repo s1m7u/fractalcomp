@@ -23,12 +23,30 @@ inline int blockSum(block* b) {
         + b->img->pfxSum[(b->y)*(b->img->width+1) + (b->x)];
 }
 
+inline int blockSumFrom(block* b, int tlx, int tly, int brx, int bry) {
+    return 
+        b->img->pfxSum[(b->y+bry)*(b->img->width+1) + (b->x + brx)]
+        - b->img->pfxSum[(b->y+tly)*(b->img->width+1) + (b->x + brx)]
+        - b->img->pfxSum[(b->y+bry)*(b->img->width+1) + (b->x + tlx)]
+        + b->img->pfxSum[(b->y+tly)*(b->img->width+1) + (b->x + tlx)];
+    
+}
+
 inline long int blockSumOfSq(block* b) {
     return
         b->img->pfxSumOfSq[(b->y+b->size)*(b->img->width+1) + (b->x+b->size)]
         - b->img->pfxSumOfSq[(b->y)*(b->img->width+1) + (b->x + b->size)]
         - b->img->pfxSumOfSq[(b->y+b->size)*(b->img->width+1) + (b->x)]
         + b->img->pfxSumOfSq[(b->y)*(b->img->width+1) + (b->x)];
+}
+
+inline int blockSumOfSqFrom(block* b, int tlx, int tly, int brx, int bry) {
+    return 
+        b->img->pfxSumOfSq[(b->y+bry)*(b->img->width+1) + (b->x + brx)]
+        - b->img->pfxSumOfSq[(b->y+tly)*(b->img->width+1) + (b->x + brx)]
+        - b->img->pfxSumOfSq[(b->y+bry)*(b->img->width+1) + (b->x + tlx)]
+        + b->img->pfxSumOfSq[(b->y+tly)*(b->img->width+1) + (b->x + tlx)];
+    
 }
 
 //assumes y,x < size

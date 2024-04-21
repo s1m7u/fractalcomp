@@ -38,6 +38,7 @@ dps* dps_from_doublep(double* p, int s) {
     dps* ret = new dps;
     ret->pfxSum = new double[(s + 1) * (s + 1)];
     ret->orig = p;
+    ret->size = s;
     // now make the pfxsum
     for (unsigned int y = 1; y <= s; y++) {
         for (unsigned int x = 1; x <= s; x++) {
@@ -48,6 +49,15 @@ dps* dps_from_doublep(double* p, int s) {
                 + ret->orig[(y-1)*s+x-1];
         }
     }
+    return ret;
+}
+
+double dpsSumFrom(dps* dr, int tlx, int tly, int brx, int bry) {
+    // FROM tlx tly TO brx bry NOT INCLUDING brx line, bry line
+    double ret = dr->pfxSum[bry * (dr->size + 1) + brx]
+        - dr->pfxSum[tly * (dr->size + 1) + brx]
+        - dr->pfxSum[bry * (dr->size + 1) + tlx]
+        + dr->pfxSum[tly * (dr->size + 1) + tlx];
     return ret;
 }
 
@@ -76,30 +86,64 @@ precomp regression_precomp(block* domain, block* range, int orient) {
 }
 
 float regression_pc(precomp comp, tf_data& tf, int tlx, int tly, int brx, int bry) { // prob only nec to look at corresp i j in domain, range?
-    // for now we ignore the rect given, it should be fairly easy to remedy this
+    // FROM tlx tly TO brx bry NOT INCLUDING brx line, bry line
     block* domain = comp.domain;
     block* range = comp.range;
     int orient = comp.orient;
     dps* dr = comp.dr;
-    
-    double ds = (double) blockSum(domain);
+
+    unsigned int dtlx = tlx, dtly = tly, dbrx = brx, dbry = bry;
+    calc_pos(&dtly, &dtlx, orient, domain->size);
+    calc_pos(&dbry, &dbrx, orient, domain->size);
+    /*
+    if (orient != 0) {
+        printf("ORIENT %d\n", orient);
+        printf("TL: %d %d, BR: %d %d\n", tlx, tlx, brx, bry);
+        printf("D: TL: %d %d, BR: %d %d\n", dtlx, dtlx, dbrx, dbry);
+        }*/
+    if (dtlx > dbrx) {
+        int s = dbrx;
+        dbrx = dtlx + 1;
+        dtlx = s - 1;
+    }
+    if (dtly > dbry) {
+        int s = dbry;
+        dbry = dtly + 1;
+        dtly = s - 1;
+    }
+    /*
+    if (orient != 0) {
+        printf("but now ORIENT %d\n", orient);
+        printf("TL: %d %d, BR: %d %d\n", tlx, tlx, brx, bry);
+        printf("D: TL: %d %d, BR: %d %d\n", dtlx, dtlx, dbrx, dbry);
+        }*/
+    /*
+    double ds = (double) blockSumFrom(domain, dtlx, dtly, dbrx, dbry);
+    double dsq = (double) blockSumOfSqFrom(domain, dtlx, dtly, dbrx, dbry);
+    */
+    double ds = (double) blockSum (domain);
     double dsq = (double) blockSumOfSq(domain);
+    
+    double rs = (double) blockSumFrom(range, tlx, tly, brx, bry);
+    double rsq = (double) blockSumOfSqFrom(range, tlx, tly, brx, bry);
+    double xy = dpsSumFrom(dr, tlx, tly, brx, bry);
 
-    double rs = (double) blockSum(range);
-    double rsq = (double) blockSumOfSq(range);
+    int rect_area = (brx - tlx) * (bry - tly);
 
-    double denom = domain->size * domain->size * dsq - ds * ds;
+    double denom = rect_area * dsq - ds * ds;
 
     if(denom == 0) {
         return 100000;
     }
 
-    double xy = (dr->pfxSum[domain->size * (domain->size + 1) + domain->size]);
 
-    tf.contrast = ((double)(domain->size * domain->size * xy) - ds * rs)/denom;
+    tf.contrast = ((double)(rect_area * xy) - ds * rs)/denom;
     /* tf.brightness = (double)(rs * dsq - ds * xy)/denom; */
-    tf.brightness = (double)(rs - tf.contrast * ds)/(domain->size*domain->size);
+    tf.brightness = (double)(rs - tf.contrast * ds)/(rect_area);
     /* printf("%f %f\n", tf.contrast, tf.brightness); */
+
+    // Unsure of how to make these jive with arbitrary rects.
+    // not nec for calcing residual, but... ?
     tf.d_block[0] = domain->y;
     tf.d_block[1] = domain->x;
     tf.r_block[0] = range->y;
@@ -107,15 +151,15 @@ float regression_pc(precomp comp, tf_data& tf, int tlx, int tly, int brx, int br
     tf.size = range->size;
     tf.orient = orient;
 
-    double closed_form = 
+    double residual = 
         tf.contrast * tf.contrast * dsq 
         + 2*tf.contrast*tf.brightness*ds 
         - 2*tf.contrast * xy
-        + tf.brightness * tf.brightness * domain->size * domain->size 
+        + tf.brightness * tf.brightness * rect_area
         - 2 * tf.brightness*rs 
         + rsq;
     
-    return closed_form;
+    return residual;
 }
 
 
